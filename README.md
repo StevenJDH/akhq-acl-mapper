@@ -2,6 +2,7 @@
 
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/StevenJDH/akhq-acl-mapper?include_prereleases)
 ![GitHub All Releases](https://img.shields.io/github/downloads/StevenJDH/akhq-acl-mapper/total)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/7bef58acd7cd45bdb37a417c7534578e)](https://app.codacy.com/gh/StevenJDH/akhq-acl-mapper/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 ![Maintenance](https://img.shields.io/badge/yes-4FCA21?label=maintained&style=flat)
 ![GitHub](https://img.shields.io/github/license/StevenJDH/akhq-acl-mapper)
 
