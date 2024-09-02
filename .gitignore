@@ -3,14 +3,37 @@
 /*.wiki
 /[Ss]etups/
 
+### Maven ###
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
+dependency-reduced-pom.xml
+
+### NetBeans ###
+/nbproject/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+nb-configuration.xml
+
 ### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
 
-### VisualStudioCode ###
-.vscode/*
+### Visual Studio Code ###
+.vscode/
 
 # Local History for Visual Studio Code
 .history/
@@ -22,3 +45,29 @@
 # Ignore all local history of files
 .history
 .ionide
+
+### Eclipse ###
+.project
+.classpath
+.settings/
+bin/
+
+### OSX ###
+.DS_Store
+
+### Vim ###
+*.swp
+*.swo
+
+### patch ###
+*.orig
+*.rej
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
