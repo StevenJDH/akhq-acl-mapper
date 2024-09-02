@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  This file is part of AKHQ ACL Mapper <https://github.com/StevenJDH/akhq-acl-mapper>.
+  Copyright (C) 2024 Steven Jenkins De Haro.
+ 
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+ 
+       http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>io.github.stevenjdh</groupId>
+    <artifactId>akhq-acl-mapper</artifactId>
+    <version>0.1.0</version>
+    <name>AKHQ ACL Mapper</name>
+    <description>An AKHQ ACL mapper for Keycloak to transition from AKHQ version 0.24.x to 0.25.x and above.</description>
+    <packaging>jar</packaging>
+    
+    <properties>
+        <java.version>17</java.version>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+        <encoding>UTF-8</encoding>
+        <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
+        <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+        <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
+        <argLine>-Dfile.encoding=${project.build.sourceEncoding}</argLine>
+        <exec.mainClass>io.github.stevenjdh.akhq.acl.mapper.AkhqAclMapper</exec.mainClass>
+        <!-- Dependency versions -->
+        <keycloak.version>25.0.4</keycloak.version>
+        <!-- Plugin Versions -->
+        <maven-compiler.version>3.13.0</maven-compiler.version>
+        <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
+        <git-commit-id-maven.version>9.0.1</git-commit-id-maven.version>
+        <!-- SonarCloud Links -->
+        <sonar.links.homepage>https://github.com/StevenJDH/akhq-acl-mapper</sonar.links.homepage>
+        <sonar.links.ci>https://github.com/StevenJDH/akhq-acl-mapper/actions</sonar.links.ci>
+        <sonar.links.issue>https://github.com/StevenJDH/akhq-acl-mapper/issues</sonar.links.issue>
+        <sonar.links.scm>https://github.com/StevenJDH/akhq-acl-mapper</sonar.links.scm>
+    </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-core</artifactId>
+            <scope>provided</scope>
+            <version>${keycloak.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-server-spi</artifactId>
+            <scope>provided</scope>
+            <version>${keycloak.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-server-spi-private</artifactId>
+            <scope>provided</scope>
+            <version>${keycloak.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-services</artifactId>
+            <scope>provided</scope>
+            <version>${keycloak.version}</version>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <configuration>
+                        <goalPrefix>sonar</goalPrefix>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler.version}</version>
+                <configuration>
+                    <compilerArgument>-Xlint:unchecked</compilerArgument>
+                </configuration>
+            </plugin>
+            <!-- Added to have an Uber JAR and to avoid java.lang.NoClassDefFoundError errors. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven-shade-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <minimizeJar>true</minimizeJar>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.MF</exclude>
+                                        <exclude>**/module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${exec.mainClass}</mainClass>
+                                </transformer>
+                            </transformers>
+                            <!-- Fixes "Project's main artifact is processed through maven-shade-plugin." -->
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <!-- Can be any name that makes sense or it will be "shaded." -->
+                            <shadedClassifierName>bin</shadedClassifierName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>${git-commit-id-maven.version}</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                    <execution>
+                        <id>validate-the-git-infos</id>
+                        <goals>
+                            <goal>validateRevision</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <!-- Valid options are 'json' and 'properties'. -->
+                    <format>json</format>
+                    <!-- Set <commitIdGenerationMode> to 'full' not 'flat' if <format> is set to 'json'. -->
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+                    <dateFormatTimeZone>UTC</dateFormatTimeZone>
+                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                    <offline>true</offline>
+                    <!-- Using excludeProperties instead of includeOnlyProperties for a smaller list. -->
+                    <excludeProperties>
+                        <excludeProperty>git.user.*</excludeProperty>
+                        <excludeProperty>^git.build.user.(email|name)$</excludeProperty>
+                        <excludeProperty>^git.commit.user.(email|name)$</excludeProperty>
+                        <excludeProperty>^git.commit.message.(short|full)$</excludeProperty>
+                    </excludeProperties>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
