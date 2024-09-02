@@ -19,38 +19,77 @@ AKHQ ACL Mapper is a custom protocol mapper for Keycloak that supports AKHQ's la
 ## Prerequisites
 * [Keycloak](https://www.keycloak.org/downloads) 25.0.0 or newer (20.0.0+ may also work).
 * [AKHQ](https://github.com/tchiotludo/akhq/releases) 0.25.0 or newer.
+* Java 17+ ([Temurin/Adopt](https://adoptium.net)) OpenJDK if building the Java-based project.
+* Optional: [Maven](https://maven.apache.org) 3.8.4+ CLI for compiling the Java-based project.
 
 ## Building
-To build the JAR file, zip together the `META-INF` folder and the `akhq-acl-mapper.js` file together. After, change the `.zip` extension to the `.jar` extension. For more information, see [Create a JAR with the scripts to deploy](https://www.keycloak.org/docs/latest/server_development/#create-a-jar-with-the-scripts-to-deploy).
+The following are the build steps needed for both flavors of the mapper available in this repo.
+
+**Java-based project**
+
+To build the JAR file, run the following command inside the `java` folder:
+
+```bash
+./mvnw clean package
+```
+
+There should now be a file called `akhq-acl-mapper-<version>-bin.jar` in the `target` folder that can be used for deploying the mapper.
+
+**Node.js-based project**
+
+To build the JAR file, zip together the `META-INF` folder and the `akhq-acl-mapper.js` file found in the `nodejs` folder. After, change the `.zip` extension to the `.jar` extension. For more information, see [Create a JAR with the scripts to deploy](https://www.keycloak.org/docs/latest/server_development/#create-a-jar-with-the-scripts-to-deploy).
 
 ## Usage
 The following describes what is needed to get up and running with this mapper.
 
 ### Install custom provider for traditional setups
-When using a traditional setup, place the `akhq-acl-mapper.jar` file into the `providers` folder of Keycloak. Restart the Keycloak server with the following command:
+When using a traditional setup, place the `akhq-acl-mapper.jar | akhq-acl-mapper-script.jar` file into the `providers` folder of Keycloak. Restart the Keycloak server with the following command:
+
+**Java-based mapper**
+
+```bash
+bin/kc.[sh|bat] start-dev
+```
+
+> [!TIP]  
+> Ignore SPI warning (KC-SERVICES0047) for implementing the internal SPI protocol-mapper, it's expected. See keycloak/keycloak#9974 for more information.
+
+**Node.js-based mapper**
 
 ```bash
 bin/kc.[sh|bat] start-dev --features=scripts
 ```
 
-**Note:** This command example starts Keycloak in development mode for testing only. The command also enables the scripts preview feature which is required by the custom mapper.
+**Note:** These command examples start Keycloak in development mode for testing only. The command used for the Node.js mapper also enables the required scripts preview feature in order to be supported.
 
 ### Install custom provider for Kubernetes setups
 When using a Kubernetes setup with Keycloak installed via the Bitnami Helm Chart, modify the chart´s `values.yaml` file to include the following configuration:
+
+**Java-based mapper**
 
 ```yaml
 initdbScripts:
   load_custom_provider_script.sh: |
     #!/bin/bash
     echo "load_custom_provider_script.sh"
-    curl -sS https://github.com/StevenJDH/akhq-acl-mapper/releases/download/0.1.0/akhq-acl-mapper.jar -o /opt/bitnami/keycloak/providers/akhq_acl_mapper.jar
+    curl -sS https://github.com/StevenJDH/akhq-acl-mapper/releases/download/0.1.0/akhq-acl-mapper.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper.jar
+```
+
+**Node.js-based mapper**
+
+```yaml
+initdbScripts:
+  load_custom_provider_script.sh: |
+    #!/bin/bash
+    echo "load_custom_provider_script.sh"
+    curl -sS https://github.com/StevenJDH/akhq-acl-mapper/releases/download/0.1.0/akhq-acl-mapper-script.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper-script.jar
 
 extraEnvVars:
   - name: KEYCLOAK_EXTRA_ARGS
     value: "--features=scripts"
 ```
 
-**Note:** This configuration enables the scripts preview feature which is required by the custom mapper.
+**Note:** The configuration used for the Node.js mapper enables the required scripts preview feature in order to be supported.
 
 ### Configure user group attributes
 Ensure that the user group attributes match the `topics-filter-regexp`, `connects-filter-regexp`, `consumer-groups-filter-regexp` keys. If they don't, then they will either need to be updated or the script adjusted to match.
