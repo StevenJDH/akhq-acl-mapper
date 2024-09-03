@@ -99,7 +99,7 @@ public class AkhqAclMapper extends AbstractOIDCProtocolMapper
             String groupName = group.getName();
 
             // Initialize the list for the current group.
-            List<Object> claimEntries = new ArrayList<>();
+            List<Map<String, Object>> claimEntries = new ArrayList<>();
             groupClaims.put(groupName, claimEntries);
 
             var topicEntry = getClaimEntry("topic-reader", "topics-filter-regexp", group);
@@ -113,11 +113,11 @@ public class AkhqAclMapper extends AbstractOIDCProtocolMapper
             count.getAndIncrement();
         });
 
-        LOGGER.debug(String.format("Number of groups processed [%s]: %d", user.getUsername(), count.get()));
+        LOGGER.debug(String.format("=== Number of groups processed [%s]: %d", user.getUsername(), count.get()));
         token.setOtherClaims("groups", groupClaims);
     }
 
-    private Map<String, Object> getClaimEntry(String role, String attribute, GroupModel group) {
+    private static Map<String, Object> getClaimEntry(String role, String attribute, GroupModel group) {
         List<String> patterns = new ArrayList<>();
         Map<String, Object> claimEntries = new HashMap<>();
 
