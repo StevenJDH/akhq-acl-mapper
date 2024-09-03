@@ -43,7 +43,7 @@ To build the JAR file, zip together the `META-INF` folder and the `akhq-acl-mapp
 The following describes what is needed to get up and running with this mapper.
 
 ### Install custom provider for traditional setups
-When using a traditional setup, place the `akhq-acl-mapper.jar | akhq-acl-mapper-script.jar` file into the `providers` folder of Keycloak. Restart the Keycloak server with the following command:
+When using a traditional setup, place the JAR file into the `providers` folder of Keycloak. Restart the Keycloak server with the following command:
 
 **Java-based mapper**
 
@@ -60,7 +60,8 @@ bin/kc.[sh|bat] start-dev
 bin/kc.[sh|bat] start-dev --features=scripts
 ```
 
-**Note:** These command examples start Keycloak in development mode for testing only. The command used for the Node.js mapper also enables the required scripts preview feature in order to be supported.
+> [!NOTE]  
+> These command examples start Keycloak in development mode for testing only. The command used for the Node.js mapper also enables the required scripts preview feature in order to be supported.
 
 ### Install custom provider for Kubernetes setups
 When using a Kubernetes setup with Keycloak installed via the Bitnami Helm Chart, modify the chart´s `values.yaml` file to include the following configuration:
@@ -71,8 +72,11 @@ When using a Kubernetes setup with Keycloak installed via the Bitnami Helm Chart
 initdbScripts:
   load_custom_provider_script.sh: |
     #!/bin/bash
-    echo "load_custom_provider_script.sh"
-    curl -sS https://github.com/StevenJDH/akhq-acl-mapper/releases/download/0.1.0/akhq-acl-mapper.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper.jar
+    echo "Running load_custom_provider_script.sh..."
+    curl -SsLf https://github.com/StevenJDH/akhq-acl-mapper/releases/download/0.1.0/akhq-acl-mapper.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper.jar
+
+containerSecurityContext:
+  readOnlyRootFilesystem: false
 ```
 
 **Node.js-based mapper**
@@ -81,15 +85,19 @@ initdbScripts:
 initdbScripts:
   load_custom_provider_script.sh: |
     #!/bin/bash
-    echo "load_custom_provider_script.sh"
-    curl -sS https://github.com/StevenJDH/akhq-acl-mapper/releases/download/0.1.0/akhq-acl-mapper-script.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper-script.jar
+    echo "Running load_custom_provider_script.sh..."
+    curl -SsLf https://github.com/StevenJDH/akhq-acl-mapper/releases/download/0.1.0/akhq-acl-mapper-script.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper-script.jar
 
 extraEnvVars:
   - name: KEYCLOAK_EXTRA_ARGS
     value: "--features=scripts"
+
+containerSecurityContext:
+  readOnlyRootFilesystem: false
 ```
 
-**Note:** The configuration used for the Node.js mapper enables the required scripts preview feature in order to be supported.
+> [!NOTE]  
+> The configuration used for the Node.js mapper enables the required scripts preview feature in order to be supported.
 
 ### Configure user group attributes
 Ensure that the user group attributes match the `topics-filter-regexp`, `connects-filter-regexp`, `consumer-groups-filter-regexp` keys. If they don't, then they will either need to be updated or the script adjusted to match.
@@ -99,7 +107,7 @@ In Keycloak, perform the following steps:
 
 1. Go to `Clients`, select the client used for AKHQ, and navigate to the `Client scopes` tab.
 2. Select the `<akhq>-dedicated` item in the list.
-3. Click the `Configure a new mapper` button, and select the `AKHQ ACL Mapper` type in the list that appears.
+3. Click the `Configure a new mapper` or `Add mapper > By configuration` button, and select the `AKHQ ACL Mapper` type in the list that appears.
 4. Configure the mapper as follows:
    * **Name:** akhq-acl-mapper
    * **Token Claim Name:** (leave blank as it will be set by the mapper)
