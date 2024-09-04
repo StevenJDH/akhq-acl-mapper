@@ -11,7 +11,7 @@ AKHQ ACL Mapper is a custom protocol mapper for Keycloak that supports AKHQ's la
 [![Buy me a coffee](https://img.shields.io/static/v1?label=Buy%20me%20a&message=coffee&color=important&style=flat&logo=buy-me-a-coffee&logoColor=white)](https://www.buymeacoffee.com/stevenjdh)
 
 ## Features
-* Maps previous `topics-filter-regexp`, `connects-filter-regexp`, `consumer-groups-filter-regexp` attributes to new ACLs.
+* Maps previous `topics-filter-regexp`, `connects-filter-regexp`, `consumer-groups-filter-regexp` group attributes to new ACLs.
 * Avoids use of `*-writer` roles to prevent users with `topics/create` or `connect/create` roles from creating disallowed resources.
 * Automatically creates the parent `groups` claim for the ACL substructure.
 * Basic debugging support.
@@ -37,7 +37,7 @@ There should now be a file called `akhq-acl-mapper-<version>-bin.jar` in the `ta
 
 **Node.js-based project**
 
-To build the JAR file, zip together the `META-INF` folder and the `akhq-acl-mapper.js` file found in the `nodejs` folder. After, change the `.zip` extension to the `.jar` extension. For more information, see [Create a JAR with the scripts to deploy](https://www.keycloak.org/docs/latest/server_development/#create-a-jar-with-the-scripts-to-deploy).
+To build the JAR file, zip together the `META-INF` folder and the `akhq-acl-mapper-script.js` file found in the `nodejs` folder. After, change the `.zip` extension to the `.jar` extension. For more information, see [Create a JAR with the scripts to deploy](https://www.keycloak.org/docs/latest/server_development/#create-a-jar-with-the-scripts-to-deploy).
 
 ## Usage
 The following describes what is needed to get up and running with this mapper.
@@ -73,7 +73,7 @@ initdbScripts:
   load_custom_provider_script.sh: |
     #!/bin/bash
     echo "Running load_custom_provider_script.sh..."
-    curl -SsLf https://github.com/StevenJDH/akhq-acl-mapper/releases/download/0.1.0/akhq-acl-mapper.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper.jar
+    curl -SsLf https://github.com/StevenJDH/akhq-acl-mapper/releases/download/0.2.0/akhq-acl-mapper.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper.jar
 
 containerSecurityContext:
   readOnlyRootFilesystem: false
@@ -86,7 +86,7 @@ initdbScripts:
   load_custom_provider_script.sh: |
     #!/bin/bash
     echo "Running load_custom_provider_script.sh..."
-    curl -SsLf https://github.com/StevenJDH/akhq-acl-mapper/releases/download/0.1.0/akhq-acl-mapper-script.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper-script.jar
+    curl -SsLf https://github.com/StevenJDH/akhq-acl-mapper/releases/download/0.2.0/akhq-acl-mapper-script.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper-script.jar
 
 extraEnvVars:
   - name: KEYCLOAK_EXTRA_ARGS
@@ -148,6 +148,18 @@ Under the `Client scopes` tab of the AKHQ client configuration, select the `Eval
       },
       {
         "role": "connect-reader",
+        "patterns": [
+          ".*"
+        ]
+      },
+      {
+        "role": "registry-reader",
+        "patterns": [
+          ".*"
+        ]
+      },
+      {
+        "role": "acl-reader",
         "patterns": [
           ".*"
         ]

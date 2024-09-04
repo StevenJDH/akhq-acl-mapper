@@ -17,7 +17,7 @@
 
 /*
  * File: akhq-acl-mapper.js
- * Version: 0.1.0
+ * Version: 0.2.0
  */
 
 var debug = true
@@ -27,10 +27,12 @@ function debugOutput(msg) {
     if (debug) print("=== akhq-acl-mapper [Debug]: " + msg);
 }
 
-function getClaimEntry(role, attribute, group) {
+function getClaimEntry(role, pattern) {
     var claim = { "role": role };
+
     claim["patterns"] = new ArrayList();
-    claim["patterns"].add(group.getFirstAttribute(attribute));
+    claim["patterns"].add(pattern);
+
     return claim
 }
 
@@ -40,17 +42,30 @@ var count = 0
 
 groups.forEach(function(group) {
     var groupName = group.getName();
+    var claimEntries = new ArrayList();
 
-    // Initialize the list for the current group.
-    groupClaims[groupName] = new ArrayList();
+    var topicFilter = group.getFirstAttribute("topics-filter-regexp");
+    var groupFilter = group.getFirstAttribute("consumer-groups-filter-regexp");
+    var connectFilter = group.getFirstAttribute("connects-filter-regexp");
 
-    var topicEntry = getClaimEntry("topic-reader", "topics-filter-regexp", group);
-    var groupEntry = getClaimEntry("group-reader", "consumer-groups-filter-regexp", group);
-    var connectEntry = getClaimEntry("connect-reader", "connects-filter-regexp", group);
+    if (topicFilter) {
+        claimEntries.add(getClaimEntry("topic-reader", topicFilter));
+    }
 
-    groupClaims[groupName].add(topicEntry);
-    groupClaims[groupName].add(groupEntry);
-    groupClaims[groupName].add(connectEntry);
+    if (groupFilter) {
+        claimEntries.add(getClaimEntry("group-reader", groupFilter));
+    }
+
+    if (connectFilter) {
+        claimEntries.add(getClaimEntry("connect-reader", connectFilter));
+    }
+
+    // Avoids other unrelated user groups from appearing in token.
+    if (!claimEntries.isEmpty()) {
+        claimEntries.add(getClaimEntry("registry-reader", ".*"));
+        claimEntries.add(getClaimEntry("acl-reader", ".*"));
+        groupClaims[groupName] = claimEntries;
+    }
 
     count++
 });

@@ -21,7 +21,7 @@
     
     <groupId>io.github.stevenjdh</groupId>
     <artifactId>akhq-acl-mapper</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <name>AKHQ ACL Mapper</name>
     <description>An AKHQ ACL mapper for Keycloak to transition from AKHQ version 0.24.x to 0.25.x and above.</description>
     <packaging>jar</packaging>

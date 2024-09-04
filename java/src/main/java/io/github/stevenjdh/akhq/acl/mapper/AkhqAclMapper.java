@@ -97,18 +97,30 @@ public class AkhqAclMapper extends AbstractOIDCProtocolMapper
 
         groups.forEach(group -> {
             String groupName = group.getName();
-
-            // Initialize the list for the current group.
             List<Map<String, Object>> claimEntries = new ArrayList<>();
-            groupClaims.put(groupName, claimEntries);
+            
+            String topicFilter = group.getFirstAttribute("topics-filter-regexp");
+            String groupFilter = group.getFirstAttribute("consumer-groups-filter-regexp");
+            String connectFilter = group.getFirstAttribute("connects-filter-regexp");
+            
+            if (!isNullOrEmpty(topicFilter)) {
+                claimEntries.add(getClaimEntry("topic-reader", topicFilter));
+            }
 
-            var topicEntry = getClaimEntry("topic-reader", "topics-filter-regexp", group);
-            var groupEntry = getClaimEntry("group-reader", "consumer-groups-filter-regexp", group);
-            var connectEntry = getClaimEntry("connect-reader", "connects-filter-regexp", group);
-
-            claimEntries.add(topicEntry);
-            claimEntries.add(groupEntry);
-            claimEntries.add(connectEntry);
+            if (!isNullOrEmpty(groupFilter)) {
+                claimEntries.add(getClaimEntry("group-reader", groupFilter));
+            }
+            
+            if (!isNullOrEmpty(connectFilter)) {
+                claimEntries.add(getClaimEntry("connect-reader", connectFilter));
+            }
+            
+            // Avoids other unrelated user groups from appearing in token.
+            if (!claimEntries.isEmpty()) {
+                claimEntries.add(getClaimEntry("registry-reader", ".*"));
+                claimEntries.add(getClaimEntry("acl-reader", ".*"));
+                groupClaims.put(groupName, claimEntries);
+            }
 
             count.getAndIncrement();
         });
@@ -117,14 +129,16 @@ public class AkhqAclMapper extends AbstractOIDCProtocolMapper
         token.setOtherClaims("groups", groupClaims);
     }
 
-    private static Map<String, Object> getClaimEntry(String role, String attribute, GroupModel group) {
-        List<String> patterns = new ArrayList<>();
-        Map<String, Object> claimEntries = new HashMap<>();
-
-        patterns.add(group.getFirstAttribute(attribute));
+    private static Map<String, Object> getClaimEntry(String role, String pattern) {
+        Map<String, Object> claimEntries = new HashMap<>();        
+        
         claimEntries.put("role", role);
-        claimEntries.put("patterns", patterns);
+        claimEntries.put("patterns", List.of(pattern));
 
         return claimEntries;
+    }
+    
+    private static boolean isNullOrEmpty(String data) {
+        return data == null || data.isBlank();
     }
 }
