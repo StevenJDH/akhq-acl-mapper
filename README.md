@@ -1,8 +1,18 @@
 # AKHQ ACL Mapper for Keycloak
 
+[![build](https://github.com/StevenJDH/akhq-acl-mapper/actions/workflows/maven-sonar-workflow.yml/badge.svg?branch=main)](https://github.com/StevenJDH/akhq-acl-mapper/actions/workflows/maven-sonar-workflow.yml)
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/StevenJDH/akhq-acl-mapper?include_prereleases)
 ![GitHub All Releases](https://img.shields.io/github/downloads/StevenJDH/akhq-acl-mapper/total)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/7bef58acd7cd45bdb37a417c7534578e)](https://app.codacy.com/gh/StevenJDH/akhq-acl-mapper/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=StevenJDH_akhq-acl-mapper&metric=alert_status)](https://sonarcloud.io/dashboard?id=StevenJDH_akhq-acl-mapper)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=StevenJDH_akhq-acl-mapper&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=StevenJDH_akhq-acl-mapper)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=StevenJDH_akhq-acl-mapper&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=StevenJDH_akhq-acl-mapper)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=StevenJDH_akhq-acl-mapper&metric=sqale_index)](https://sonarcloud.io/dashboard?id=StevenJDH_akhq-acl-mapper)
+[![Sonar Violations (long format)](https://img.shields.io/sonar/violations/StevenJDH_akhq-acl-mapper?format=long&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/dashboard?id=StevenJDH_akhq-acl-mapper)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=StevenJDH_akhq-acl-mapper&metric=security_rating)](https://sonarcloud.io/dashboard?id=StevenJDH_akhq-acl-mapper)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=StevenJDH_akhq-acl-mapper&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=StevenJDH_akhq-acl-mapper)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=StevenJDH_akhq-acl-mapper&metric=coverage)](https://sonarcloud.io/dashboard?id=StevenJDH_akhq-acl-mapper)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=StevenJDH_akhq-acl-mapper&metric=ncloc)](https://sonarcloud.io/dashboard?id=StevenJDH_akhq-acl-mapper)
 ![Maintenance](https://img.shields.io/badge/yes-4FCA21?label=maintained&style=flat)
 ![GitHub](https://img.shields.io/github/license/StevenJDH/akhq-acl-mapper)
 
