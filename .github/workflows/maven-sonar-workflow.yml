@@ -1,0 +1,81 @@
+name: 'build'
+
+on:
+  push:
+    branches:
+    - main
+    paths-ignore:
+    - '*.md'
+    - '*.png'
+    - 'assets/**'
+  pull_request:
+    branches:
+    - main
+    paths-ignore:
+    - '*.md'
+    - '*.png'
+    -  'assets/**'
+    types: [opened, synchronize, reopened] # https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#pull_request
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'The reason for running the workflow.'
+        required: true
+        default: 'Manual run'
+
+env:
+  # This will suppress any downloads for dependencies and plugins or upload messages that would clutter the console log.
+  # Opting for this approach because --no-transfer-progress or -ntp may be suppressing even warning and error messages.
+  MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN
+  MAVEN_CLI_OPTS: --batch-mode --errors --fail-at-end --show-version -Dstyle.color=always
+
+defaults:
+  run:
+    working-directory: ./java
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        # Disabling shallow clone is recommended for improving relevancy.
+        fetch-depth: 0
+
+    # Step also needed to avoid issues with sonarscanner and preinstalled Java 11.
+    - name: Install Temurin OpenJDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: 17
+        distribution: 'temurin'
+        architecture: x64
+
+    - name: Cache SonarCloud Packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+
+    - name: Cache Maven Packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Maven Package
+      run: chmod +x ./mvnw && ./mvnw $MAVEN_CLI_OPTS -DskipTests clean package
+
+    - name: SonarCloud Scan
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any.
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        ./mvnw $MAVEN_CLI_OPTS verify sonar:sonar \
+          -Dsonar.projectKey="StevenJDH_akhq-acl-mapper" \
+          -Dsonar.organization="stevenjdh" \
+          -Dsonar.host.url="https://sonarcloud.io" \
+          -Dsonar.token=$SONAR_TOKEN
