@@ -17,7 +17,15 @@
 
 /*
  * File: akhq-acl-mapper.js
- * Version: 0.2.0
+ * Version: 0.3.0
+ *
+ * Predefined Objects:
+ * =========================
+ * user - the current user.
+ * realm - the current realm.
+ * token - the current token.
+ * userSession - the current userSession.
+ * keycloakSession - the current keycloakSession.
  */
 
 var debug = true
@@ -71,4 +79,4 @@ groups.forEach(function(group) {
 });
 
 debugOutput('Number of groups processed [' + user.getUsername() + ']: ' + count);
-token.setOtherClaims("groups", groupClaims);
+exports = groupClaims;

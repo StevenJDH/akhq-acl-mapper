@@ -110,7 +110,7 @@ In Keycloak, perform the following steps:
 3. Click the `Configure a new mapper` or `Add mapper > By configuration` button, and select the `AKHQ ACL Mapper` type in the list that appears.
 4. Configure the mapper as follows:
    * **Name:** akhq-acl-mapper
-   * **Token Claim Name:** (leave blank as it will be set by the mapper)
+   * **Token Claim Name:** groups (Must match setting in AKHQ for `akhq.security.oidc.<label>.groups-field`)
    * **Claim JSON Type:** JSON
    * **Add to ID token:** On
    * **Add to access token:** Off

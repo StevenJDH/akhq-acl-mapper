@@ -21,7 +21,7 @@
     
     <groupId>io.github.stevenjdh</groupId>
     <artifactId>akhq-acl-mapper</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
     <name>AKHQ ACL Mapper</name>
     <description>An AKHQ ACL mapper for Keycloak to transition from AKHQ version 0.24.x to 0.25.x and above.</description>
     <packaging>jar</packaging>
@@ -38,10 +38,20 @@
         <exec.mainClass>io.github.stevenjdh.akhq.acl.mapper.AkhqAclMapper</exec.mainClass>
         <!-- Dependency versions -->
         <keycloak.version>25.0.4</keycloak.version>
+        <junit-jupiter.version>5.11.0</junit-jupiter.version>
+        <assertj-core.version>3.26.3</assertj-core.version>
+        <mockito-junit-jupiter.version>5.13.0</mockito-junit-jupiter.version>
         <!-- Plugin Versions -->
         <maven-compiler.version>3.13.0</maven-compiler.version>
+        <maven-surefire.version>3.5.0</maven-surefire.version>
         <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
+        <jacoco.version>0.8.12</jacoco.version>
         <git-commit-id-maven.version>9.0.1</git-commit-id-maven.version>
+        <!-- SonarCloud Properties -->
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.language>java</sonar.language>
         <!-- SonarCloud Links -->
         <sonar.links.homepage>https://github.com/StevenJDH/akhq-acl-mapper</sonar.links.homepage>
         <sonar.links.ci>https://github.com/StevenJDH/akhq-acl-mapper/actions</sonar.links.ci>
@@ -74,6 +84,25 @@
             <scope>provided</scope>
             <version>${keycloak.version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj-core.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito-junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     
     <build>
@@ -97,6 +126,11 @@
                 <configuration>
                     <compilerArgument>-Xlint:unchecked</compilerArgument>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire.version}</version>
             </plugin>
             <!-- Added to have an Uber JAR and to avoid java.lang.NoClassDefFoundError errors. -->
             <plugin>
@@ -129,6 +163,46 @@
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <!-- Can be any name that makes sense or it will be "shaded." -->
                             <shadedClassifierName>bin</shadedClassifierName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>jacoco-initialize</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-site</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>PACKAGE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.0</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
                         </configuration>
                     </execution>
                 </executions>
@@ -176,4 +250,5 @@
             </plugin>
         </plugins>
     </build>
+  
 </project>

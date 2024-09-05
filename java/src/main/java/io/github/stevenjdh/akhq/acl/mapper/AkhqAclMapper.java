@@ -126,7 +126,12 @@ public class AkhqAclMapper extends AbstractOIDCProtocolMapper
         });
 
         LOGGER.debug(String.format("=== Number of groups processed [%s]: %d", user.getUsername(), count.get()));
-        token.setOtherClaims("groups", groupClaims);
+        String claimName = mappingModel.getConfig().get(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME);
+        
+        // Not setting 'groups' as default value to align with nodejs code.
+        if (!isNullOrEmpty(claimName)) {
+            token.setOtherClaims(claimName, groupClaims);
+        }
     }
 
     private static Map<String, Object> getClaimEntry(String role, String pattern) {
