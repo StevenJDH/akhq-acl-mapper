@@ -110,7 +110,7 @@ containerSecurityContext:
 > The configuration used for the Node.js mapper enables the required scripts preview feature in order to be supported.
 
 ### Configure user group attributes
-Ensure that the user group attributes match the `topics-filter-regexp`, `connects-filter-regexp`, `consumer-groups-filter-regexp` keys. If they don't, then they will either need to be updated or the script adjusted to match.
+Ensure that the user group attributes match the `topics-filter-regexp`, `connects-filter-regexp`, `consumer-groups-filter-regexp` keys. If they don't, then they will either need to be updated or the code/script adjusted to match.
 
 ### Add custom protocol mapper
 In Keycloak, perform the following steps:
