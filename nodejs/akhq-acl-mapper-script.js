@@ -55,6 +55,9 @@ groups.forEach(function(group) {
     var topicFilter = group.getFirstAttribute("topics-filter-regexp");
     var groupFilter = group.getFirstAttribute("consumer-groups-filter-regexp");
     var connectFilter = group.getFirstAttribute("connects-filter-regexp");
+    var registryFilter = group.getFirstAttribute("registry-filter-regexp");
+    var aclFilter = group.getFirstAttribute("acls-filter-regexp");
+
 
     if (topicFilter) {
         claimEntries.add(getClaimEntry("topic-reader", topicFilter));
@@ -68,10 +71,16 @@ groups.forEach(function(group) {
         claimEntries.add(getClaimEntry("connect-reader", connectFilter));
     }
 
+    if (registryFilter) {
+        claimEntries.add(getClaimEntry("registry-reader", registryFilter));
+    }
+
+    if (aclFilter) {
+        claimEntries.add(getClaimEntry("acl-reader", aclFilter));
+    }
+
     // Avoids other unrelated user groups from appearing in token.
     if (!claimEntries.isEmpty()) {
-        claimEntries.add(getClaimEntry("registry-reader", ".*"));
-        claimEntries.add(getClaimEntry("acl-reader", ".*"));
         groupClaims[groupName] = claimEntries;
     }
 

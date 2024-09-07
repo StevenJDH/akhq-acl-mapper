@@ -21,7 +21,7 @@ AKHQ ACL Mapper is a custom protocol mapper for Keycloak that supports AKHQ's la
 [![Buy me a coffee](https://img.shields.io/static/v1?label=Buy%20me%20a&message=coffee&color=important&style=flat&logo=buy-me-a-coffee&logoColor=white)](https://www.buymeacoffee.com/stevenjdh)
 
 ## Features
-* Maps previous `topics-filter-regexp`, `connects-filter-regexp`, `consumer-groups-filter-regexp` group attributes to new ACLs.
+* Maps previous `topics-filter-regexp`, `connects-filter-regexp`, `consumer-groups-filter-regexp`, etc. group attributes to new ACLs.
 * Avoids use of `*-writer` roles to prevent users with `topics/create` or `connect/create` roles from creating disallowed resources.
 * Automatically creates the parent `groups` claim for the ACL substructure.
 * Basic debugging support.
@@ -74,7 +74,7 @@ bin/kc.[sh|bat] start-dev --features=scripts
 > These command examples start Keycloak in development mode for testing only. The command used for the Node.js mapper also enables the required scripts preview feature in order to be supported.
 
 ### Install custom provider for Kubernetes setups
-When using a Kubernetes setup with Keycloak installed via the Bitnami Helm Chart, modify the chart´s `values.yaml` file to include the following configuration:
+When using a Kubernetes setup with Keycloak installed via the Bitnami Helm Chart, modify the chart's `values.yaml` file to include the following configuration:
 
 **Java-based mapper**
 
@@ -110,7 +110,7 @@ containerSecurityContext:
 > The configuration used for the Node.js mapper enables the required scripts preview feature in order to be supported.
 
 ### Configure user group attributes
-Ensure that the user group attributes match the `topics-filter-regexp`, `connects-filter-regexp`, `consumer-groups-filter-regexp` keys. If they don't, then they will either need to be updated or the code/script adjusted to match.
+Ensure that the user group attributes match the `topics-filter-regexp`, `connects-filter-regexp`, and `consumer-groups-filter-regexp` keys. If they don't, then they will either need to be updated in Keycloak or the code/script adjusted to match. Additionally, the `registry-filter-regexp` and `acls-filter-regexp` keys are supported.
 
 ### Add custom protocol mapper
 In Keycloak, perform the following steps:

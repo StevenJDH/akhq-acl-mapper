@@ -148,8 +148,8 @@ class AkhqAclMapperTest {
                 Map.of("role", "topic-reader", "patterns", List.of("moe.*")),
                 Map.of("role", "group-reader", "patterns", List.of("larry.*")),
                 Map.of("role", "connect-reader", "patterns", List.of("curly.*")),
-                Map.of("role", "registry-reader", "patterns", List.of(".*")),
-                Map.of("role", "acl-reader", "patterns", List.of(".*"))
+                Map.of("role", "registry-reader", "patterns", List.of("shemp.*")),
+                Map.of("role", "acl-reader", "patterns", List.of("joe.*"))
         );
         Map<String, Object> expectedClaimValue = Map.of("foobar-group", claimEntries);
 
@@ -161,6 +161,10 @@ class AkhqAclMapperTest {
                 .thenReturn("larry.*");
         when(mockGroup.getFirstAttribute("connects-filter-regexp"))
                 .thenReturn("curly.*");
+        when(mockGroup.getFirstAttribute("registry-filter-regexp"))
+                .thenReturn("shemp.*");
+        when(mockGroup.getFirstAttribute("acls-filter-regexp"))
+                .thenReturn("joe.*");
         when(mockUser.getGroupsStream())
                 .thenReturn(Stream.of(mockGroup));
         when(mockUserSession.getUser())

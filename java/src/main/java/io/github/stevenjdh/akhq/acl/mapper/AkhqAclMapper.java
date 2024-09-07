@@ -102,6 +102,8 @@ public class AkhqAclMapper extends AbstractOIDCProtocolMapper
             String topicFilter = group.getFirstAttribute("topics-filter-regexp");
             String groupFilter = group.getFirstAttribute("consumer-groups-filter-regexp");
             String connectFilter = group.getFirstAttribute("connects-filter-regexp");
+            String registryFilter = group.getFirstAttribute("registry-filter-regexp");
+            String aclFilter = group.getFirstAttribute("acls-filter-regexp");
             
             if (!isNullOrEmpty(topicFilter)) {
                 claimEntries.add(getClaimEntry("topic-reader", topicFilter));
@@ -115,10 +117,16 @@ public class AkhqAclMapper extends AbstractOIDCProtocolMapper
                 claimEntries.add(getClaimEntry("connect-reader", connectFilter));
             }
             
+            if (!isNullOrEmpty(registryFilter)) {
+                claimEntries.add(getClaimEntry("registry-reader", registryFilter));
+            }
+            
+            if (!isNullOrEmpty(aclFilter)) {
+                claimEntries.add(getClaimEntry("acl-reader", aclFilter));
+            }
+            
             // Avoids other unrelated user groups from appearing in token.
             if (!claimEntries.isEmpty()) {
-                claimEntries.add(getClaimEntry("registry-reader", ".*"));
-                claimEntries.add(getClaimEntry("acl-reader", ".*"));
                 groupClaims.put(groupName, claimEntries);
             }
 
