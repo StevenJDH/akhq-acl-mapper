@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import static java.util.stream.Collectors.toMap;
 import java.util.stream.Stream;
 import org.jboss.logging.Logger;
 import org.keycloak.models.ClientSessionContext;
@@ -141,14 +142,38 @@ public class AkhqAclMapper extends AbstractOIDCProtocolMapper
             token.setOtherClaims(claimName, groupClaims);
         }
     }
-
+    
     private static Map<String, Object> getClaimEntry(String role, String pattern) {
+        if (pattern.contains(":")) {
+            Map<String, String> permLookup = parsePermissions(pattern);
+            
+            return getClaimEntry(permLookup.getOrDefault("role", role),
+                    permLookup.getOrDefault("pattern", "^$"),
+                    permLookup.get("cluster"));
+        }
+        
+        return getClaimEntry(role, pattern, null);  
+    }
+
+    private static Map<String, Object> getClaimEntry(String role, String pattern, String cluster) {
         Map<String, Object> claimEntries = new HashMap<>();        
         
         claimEntries.put("role", role);
         claimEntries.put("patterns", List.of(pattern));
+        
+        if (cluster != null) {
+            claimEntries.put("clusters", List.of(cluster));
+        }
 
         return claimEntries;
+    }
+    
+    private static Map<String, String> parsePermissions(String input) {
+        final List<String> validKeys = List.of("role", "pattern", "cluster");
+        return Stream.of(input.toLowerCase().replace(" ", "").split(","))
+                .map(p -> p.split(":"))
+                .filter(kv -> kv.length == 2 && validKeys.contains(kv[0])) // Filters out invalid entries.
+                .collect(toMap(kv -> kv[0], kv -> kv[1]));
     }
     
     private static boolean isNullOrEmpty(String data) {

@@ -16,14 +16,14 @@
 ![Maintenance](https://img.shields.io/badge/yes-4FCA21?label=maintained&style=flat)
 ![GitHub](https://img.shields.io/github/license/StevenJDH/akhq-acl-mapper)
 
-AKHQ ACL Mapper is a custom protocol mapper for Keycloak that supports AKHQ's latest ACL requirements as of version 0.25.0 when using [Direct OIDC mapping](https://akhq.io/docs/configuration/authentifications/oidc.html#direct-oidc-mapping). This mapper is only meant to be used as a simple way to transition from previous AKHQ versions for simple setups that used group attributes to adapt the UI to a logged in user. Because of this, many features like multi-cluster support are not supported, but the script may be useful as a base to adapt to any other needs.
+AKHQ ACL Mapper is a custom protocol mapper for Keycloak that supports AKHQ's latest ACL requirements as of version 0.25.0 when using [Direct OIDC mapping](https://akhq.io/docs/configuration/authentifications/oidc.html#direct-oidc-mapping). This mapper can be used as a simple way to transition from previous AKHQ versions for setups that use group attributes to adapt the UI to a logged in user. These attributes can use the previous regex expressions for defining ACLs, or a newer syntax that can leverage more features of the latest ACL system while having greater control over what roles are used.
 
 [![Buy me a coffee](https://img.shields.io/static/v1?label=Buy%20me%20a&message=coffee&color=important&style=flat&logo=buy-me-a-coffee&logoColor=white)](https://www.buymeacoffee.com/stevenjdh)
 
 ## Features
 * Maps previous `topics-filter-regexp`, `connects-filter-regexp`, `consumer-groups-filter-regexp`, etc. group attributes to new ACLs.
-* Avoids use of `*-writer` roles to prevent users with `topics/create` or `connect/create` roles from creating disallowed resources.
-* Automatically creates the parent `groups` claim for the ACL substructure.
+* Define resource specific ACLs using previous syntax and or using a newer syntax for greater flexibility.
+* Supports customizing the `groups` claim name for the ACL substructure in case it is already in use.
 * Basic debugging support.
 
 ## Prerequisites
@@ -112,6 +112,8 @@ containerSecurityContext:
 ### Configure user group attributes
 Ensure that the user group attributes match the `topics-filter-regexp`, `connects-filter-regexp`, and `consumer-groups-filter-regexp` keys. If they don't, then they will either need to be updated in Keycloak or the code/script adjusted to match. Additionally, the `registry-filter-regexp` and `acls-filter-regexp` keys are supported.
 
+The previous regex expressions used in the group attributes are still supported if migrating from previous versions of AKHQ. However, only `*-reader` roles will be applied for resources defined in this way. The AKHQ ACL Mapper supports defining ACLs using a newer syntax, which offers a number of benefits such as defining `*-writer` roles, using custom role names defined in AKHQ, and support for multiple clusters. The new syntax uses key value pairs separated by commas using the keys `role`, `pattern`, and the optional `cluster` key. For example, if `topics-filter-regexp` previously held a value of `test.*`, then in the new approach, this could be written as `role:topic-writer,pattern:test.*,cluster:example.*` or `role:topic-writer,pattern:test.*`. For reference, the build-in AKHQ roles use the format `<resource>-<reader|writer|admin>` such as `topic-admin`, `acl-reader`, `registry-writer` and so on.
+
 ### Add custom protocol mapper
 In Keycloak, perform the following steps:
 
@@ -145,9 +147,12 @@ Under the `Client scopes` tab of the AKHQ client configuration, select the `Eval
   "groups": {
     "project-x": [
       {
-        "role": "topic-reader",
+        "role": "topic-writer",
         "patterns": [
           "test.*"
+        ],
+        "clusters": [
+          "example-*"
         ]
       },
       {

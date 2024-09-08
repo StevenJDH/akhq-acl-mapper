@@ -177,6 +177,60 @@ class AkhqAclMapperTest {
     }
     
     @Test
+    @DisplayName("Should set custom claim with ACLs when using inline permission definition.")
+    void Should_SetCustomClaimWithAcls_When_UsingInlinePermissionDefinition() {
+        var token = new IDToken();
+        List<Map<String, Object>> claimEntries = List.of(
+                Map.of("role", "topic-writer", "patterns", List.of("marco.*"), "clusters", List.of("foobar")),
+                Map.of("role", "group-reader", "patterns", List.of("polo.*"), "clusters", List.of("foobar"))
+        );
+        Map<String, Object> expectedClaimValue = Map.of("foobar-group", claimEntries);
+
+        when(mockGroup.getName())
+                .thenReturn("foobar-group");
+        when(mockGroup.getFirstAttribute("topics-filter-regexp"))
+                .thenReturn("role:topic-writer,pattern:marco.*,cluster:foobar");
+        when(mockGroup.getFirstAttribute("consumer-groups-filter-regexp"))
+                .thenReturn("role:group-reader,pattern:polo.*,cluster:foobar");
+        when(mockUser.getGroupsStream())
+                .thenReturn(Stream.of(mockGroup));
+        when(mockUserSession.getUser())
+                .thenReturn(mockUser);
+
+        akhqAclMapper.setClaim(token, PROTOCOL_MAPPER, mockUserSession, null, null);
+
+        assertThat(token.getOtherClaims()).isNotEmpty()
+                .containsEntry(CLAIM_NAME_KEY, expectedClaimValue);
+    }
+    
+    @Test
+    @DisplayName("Should set default ACL values for invalid inline permission definition entries.")
+    void Should_SetDefaultAclValues_ForInvalidInlinePermissionDefinitionEntries() {
+        var token = new IDToken();
+        List<Map<String, Object>> claimEntries = List.of(
+                Map.of("role", "topic-reader", "patterns", List.of("marco.*"), "clusters", List.of("foobar")),
+                Map.of("role", "group-reader", "patterns", List.of("^$"), "clusters", List.of("foobar"))
+        );
+        Map<String, Object> expectedClaimValue = Map.of("foobar-group", claimEntries);
+
+        when(mockGroup.getName())
+                .thenReturn("foobar-group");
+        when(mockGroup.getFirstAttribute("topics-filter-regexp"))
+                .thenReturn("rolZ:topic-writer,pattern:marco.*,cluster:foobar");
+        when(mockGroup.getFirstAttribute("consumer-groups-filter-regexp"))
+                .thenReturn("role:group-reader,pattern:,cluster:foobar");
+        when(mockUser.getGroupsStream())
+                .thenReturn(Stream.of(mockGroup));
+        when(mockUserSession.getUser())
+                .thenReturn(mockUser);
+
+        akhqAclMapper.setClaim(token, PROTOCOL_MAPPER, mockUserSession, null, null);
+
+        assertThat(token.getOtherClaims()).isNotEmpty()
+                .containsEntry(CLAIM_NAME_KEY, expectedClaimValue);
+    }
+    
+    @Test
     @DisplayName("Should set custom claim without ACLs when user group attributes are not configured.")
     void Should_SetCustomClaimWithoutAcls_When_UserGroupAttributesAreNotConfigured() {
         var token = new IDToken();

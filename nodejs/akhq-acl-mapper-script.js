@@ -26,22 +26,74 @@
  * token - the current token.
  * userSession - the current userSession.
  * keycloakSession - the current keycloakSession.
+ * 
+ * NOTE: Nashorn (JavaScript engine) supports up to ECMAScript 5.1 only.
  */
 
-var debug = true
+var debug = false
 var ArrayList = Java.type("java.util.ArrayList");
 
 function debugOutput(msg) {
     if (debug) print("=== akhq-acl-mapper [Debug]: " + msg);
 }
 
+// JS doesn't have function overloading due to hoisting.
+function createClaimEntry(role, pattern, cluster) {
+    var claimEntries = { "role": role };
+
+    claimEntries.patterns = new ArrayList();
+    claimEntries.patterns.add(pattern);
+
+    if (cluster) {
+        claimEntries.clusters = new ArrayList();
+        claimEntries.clusters.add(cluster);
+    }
+
+    return claimEntries
+}
+
 function getClaimEntry(role, pattern) {
-    var claim = { "role": role };
+    if (pattern.indexOf(":") !== -1) {
+        var permLookup = parsePermissions(pattern);
 
-    claim["patterns"] = new ArrayList();
-    claim["patterns"].add(pattern);
+        return createClaimEntry(permLookup.role || role,
+            permLookup.pattern || "^$",
+            permLookup.cluster);
+    }
+    
+    return createClaimEntry(role, pattern, null);
+}
 
-    return claim
+function parsePermissions(input) {
+    var validKeys = ["role", "pattern", "cluster"];
+
+    // ES5-compatible
+    return input.toLowerCase().replace(' ', '').split(',')
+        .map(function(pair) {
+            return pair.split(':');
+        })
+        .filter(function(pair) {
+            var k = pair[0];
+            var v = pair[1];
+            return k && v && validKeys.indexOf(k) !== -1; // Filter out invalid entries.
+        })
+        .reduce(function(dict, pair) {
+            var k = pair[0];
+            var v = pair[1];
+            dict[k] = v;
+            return dict;
+        }, {});
+
+    
+    /* ES6-compatible
+    return input.toLowerCase().replace(' ', '').split(',')
+        .map(p => p.split(':'))
+        .filter(([k, v]) => k && v && validKeys.includes(k)) // Filter out invalid entries.
+        .reduce((dict, [k, v]) => {
+            dict[k] = v;
+            return dict;
+        }, {});
+    */
 }
 
 var groupClaims = {};
