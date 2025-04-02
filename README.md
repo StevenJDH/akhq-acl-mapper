@@ -83,7 +83,8 @@ initdbScripts:
   load_custom_provider_script.sh: |
     #!/bin/bash
     echo "Running load_custom_provider_script.sh..."
-    curl -SsLf https://github.com/StevenJDH/akhq-acl-mapper/releases/download/0.2.0/akhq-acl-mapper.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper.jar
+    # Replace 'latest' in the URL with a specific version like 0.3.0 to pin to a release.
+    curl -SsLf https://github.com/StevenJDH/akhq-acl-mapper/releases/download/latest/akhq-acl-mapper.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper.jar
 
 containerSecurityContext:
   readOnlyRootFilesystem: false
@@ -96,7 +97,8 @@ initdbScripts:
   load_custom_provider_script.sh: |
     #!/bin/bash
     echo "Running load_custom_provider_script.sh..."
-    curl -SsLf https://github.com/StevenJDH/akhq-acl-mapper/releases/download/0.2.0/akhq-acl-mapper-script.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper-script.jar
+    # Replace 'latest' in the URL with a specific version like 0.3.0 to pin to a release.
+    curl -SsLf https://github.com/StevenJDH/akhq-acl-mapper/releases/download/latest/akhq-acl-mapper-script.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper-script.jar
 
 extraEnvVars:
   - name: KEYCLOAK_EXTRA_ARGS
@@ -144,6 +146,7 @@ Under the `Client scopes` tab of the AKHQ client configuration, select the `Eval
   "acr": "1",
   "email_verified": true,
   "name": "john doe",
+  ...< additional claims ommitted >...
   "groups": {
     "project-x": [
       {
