@@ -18,6 +18,9 @@
 
 AKHQ ACL Mapper is a custom protocol mapper for Keycloak that supports AKHQ's latest ACL requirements as of version 0.25.0 when using [Direct OIDC mapping](https://akhq.io/docs/configuration/authentifications/oidc.html#direct-oidc-mapping). This mapper can be used as a simple way to transition from previous AKHQ versions for setups that use group attributes to adapt the UI to a logged in user. These attributes can use the previous regex expressions for defining ACLs, or a newer syntax that can leverage more features of the latest ACL system while having greater control over what roles are used.
 
+![Configure a new mapper dialog](akhq-ss-0.png "Screenshot")
+![Add mapper dialog](akhq-ss-1.png "Screenshot")
+
 [![Buy me a coffee](https://img.shields.io/static/v1?label=Buy%20me%20a&message=coffee&color=important&style=flat&logo=buy-me-a-coffee&logoColor=white)](https://www.buymeacoffee.com/stevenjdh)
 
 ## Features
@@ -83,8 +86,8 @@ initdbScripts:
   load_custom_provider_script.sh: |
     #!/bin/bash
     echo "Running load_custom_provider_script.sh..."
-    # Replace 'latest' in the URL with a specific version like 0.3.0 to pin to a release.
-    curl -SsLf https://github.com/StevenJDH/akhq-acl-mapper/releases/download/latest/akhq-acl-mapper.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper.jar
+    # Replace 'latest/download' in the URL with a specific version like 'download/0.3.0' to pin to a release..
+    curl -SsLf https://github.com/StevenJDH/akhq-acl-mapper/releases/latest/download/akhq-acl-mapper.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper.jar
 
 containerSecurityContext:
   readOnlyRootFilesystem: false
@@ -97,8 +100,8 @@ initdbScripts:
   load_custom_provider_script.sh: |
     #!/bin/bash
     echo "Running load_custom_provider_script.sh..."
-    # Replace 'latest' in the URL with a specific version like 0.3.0 to pin to a release.
-    curl -SsLf https://github.com/StevenJDH/akhq-acl-mapper/releases/download/latest/akhq-acl-mapper-script.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper-script.jar
+    # Replace 'latest/download' in the URL with a specific version like 'download/0.3.0' to pin to a release.
+    curl -SsLf https://github.com/StevenJDH/akhq-acl-mapper/releases/latest/download/akhq-acl-mapper-script.jar -o /opt/bitnami/keycloak/providers/akhq-acl-mapper-script.jar
 
 extraEnvVars:
   - name: KEYCLOAK_EXTRA_ARGS
@@ -111,10 +114,13 @@ containerSecurityContext:
 > [!NOTE]  
 > The configuration used for the Node.js mapper enables the required scripts preview feature in order to be supported.
 
+> [!IMPORTANT]  
+> The Keycloak Bitnami Helm Chart seems to have gone into a paid model, so the above examples may only work with older releases. However, you can now use my [Keycloak Stack Helm Chart](https://github.com/StevenJDH/helm-charts/tree/main/charts/keycloak-stack), which also supports declarative resources. An equivalent example to the above for this chart can be found in the [add additional providers example](https://github.com/StevenJDH/helm-charts/blob/main/charts/keycloak-stack/examples/add-additional-providers.yaml).
+
 ### Configure user group attributes
 Ensure that the user group attributes match the `topics-filter-regexp`, `connects-filter-regexp`, and `consumer-groups-filter-regexp` keys. If they don't, then they will either need to be updated in Keycloak or the code/script adjusted to match. Additionally, the `registry-filter-regexp` and `acls-filter-regexp` keys are supported.
 
-The previous regex expressions used in the group attributes are still supported if migrating from previous versions of AKHQ. However, only `*-reader` roles will be applied for resources defined in this way. The AKHQ ACL Mapper supports defining ACLs using a newer syntax, which offers a number of benefits such as defining `*-writer` roles, using custom role names defined in AKHQ, and support for multiple clusters. The new syntax uses key value pairs separated by commas using the keys `role`, `pattern`, and the optional `cluster` key. For example, if `topics-filter-regexp` previously held a value of `test.*`, then in the new approach, this could be written as `role:topic-writer,pattern:test.*,cluster:example.*` or `role:topic-writer,pattern:test.*`. For reference, the build-in AKHQ roles use the format `<resource>-<reader|writer|admin>` such as `topic-admin`, `acl-reader`, `registry-writer` and so on.
+The previous regex expressions used in the group attributes are still supported if migrating from previous versions of AKHQ. However, only `*-reader` roles will be applied for resources defined in this way. The AKHQ ACL Mapper supports defining ACLs using a newer syntax, which offers a number of benefits such as defining `*-writer` roles, using custom role names defined in AKHQ, and support for multiple clusters. The new syntax uses key value pairs separated by commas using the keys `role`, `pattern`, and the optional `cluster` key. For example, if `topics-filter-regexp` previously held a value of `test.*`, then in the new approach, this could be written as `role:topic-writer,pattern:test.*,cluster:example.*` or `role:topic-writer,pattern:test.*`. For reference, the built-in AKHQ roles use the format `<resource>-<reader|writer|admin>` such as `topic-admin`, `acl-reader`, `registry-writer` and so on.
 
 ### Add custom protocol mapper
 In Keycloak, perform the following steps:
